@@ -1,0 +1,13 @@
+config:
+  target: "http://localhost:3000"
+
+  phases:
+    - duration: 1
+      arrivalCount: 10
+
+scenarios:
+  - flow:
+      - post:
+          url: "/api/users/10/follow"
+          headers:
+            Authorization: "Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6MSwidXNlcm5hbWUiOiJhcmlmX3Rlc3QiLCJlbWFpbCI6ImFyaWZAZ21haWwuY29tIiwiaWF0IjoxNzgxNDI3NDQ1LCJleHAiOjE3ODE0MzEwNDV9.5E3CNbGnKaNSqNMPnxfPs0D7JOEBvyHutrifKaz5ouk"
