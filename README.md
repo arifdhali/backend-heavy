@@ -42,10 +42,10 @@ Instead of only learning theory, I implement backend systems and analyze:
 * Database Scaling Tests
 
 ## Scalability Testing
-10 Users
-1,000 Users
-100,000 Users
-1,000,000+ Users
+10 Users  <br/>
+1,000 Users  <br/>
+100,000 Users  <br/>
+1,000,000+ Users  <br/>
 
 ## Goal
 
