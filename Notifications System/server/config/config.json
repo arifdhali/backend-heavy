@@ -1,0 +1,23 @@
+{
+  "development": {
+    "username": "Xroot",
+    "password": "Xroot",
+    "database": "notifications_system",
+    "host": "localhost",
+    "dialect": "mysql"
+  },
+  "test": {
+    "username": "root",
+    "password": null,
+    "database": "notifications_system",
+    "host": "localhost",
+    "dialect": "mysql"
+  },
+  "production": {
+    "username": "root",
+    "password": null,
+    "database": "notifications_system",
+    "host": "localhost",
+    "dialect": "mysql"
+  }
+}
