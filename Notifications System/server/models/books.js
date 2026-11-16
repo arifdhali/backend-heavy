@@ -14,7 +14,7 @@ module.exports = (sequelize, DataTypes) => {
 
       this.belongsTo(models.User, {
         foreignKey: "author_id",
-        as: "book"
+        as: "author"
       })
     }
   }
@@ -31,6 +31,10 @@ module.exports = (sequelize, DataTypes) => {
     },
     name: {
       type: DataTypes.STRING,
+    },
+    description: {
+      type: DataTypes.STRING,
+      defaultValue: null
     }
   }, {
     sequelize,

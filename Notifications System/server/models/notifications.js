@@ -33,10 +33,19 @@ module.exports = (sequelize, DataTypes) => {
       }
     },
     message: {
-      type: DataTypes.STRING(200),
+      type: DataTypes.TEXT('long'),
       defaultValue: null,
     },
     is_read: DataTypes.BOOLEAN,
+    is_recived: {
+      type: DataTypes.BOOLEAN,
+      defaultValue: false,
+    },
+    sent_at: {
+      type: DataTypes.DATE,
+      defaultValue: DataTypes.NOW
+    }
+
   }, {
     sequelize,
     modelName: 'Notifications',
