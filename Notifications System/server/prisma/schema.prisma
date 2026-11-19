@@ -1,0 +1,73 @@
+generator client {
+  provider = "prisma-client"
+  output   = "../generated/prisma"
+}
+
+datasource db {
+  provider = "mysql"
+}
+
+model User {
+  id                    Int               @id @default(autoincrement())
+  name                  String?           @db.VarChar(255)
+  email                 String?           @unique(map: "email") @db.VarChar(255)
+  user_type             users_user_type?  @default(user)
+  password              String?           @db.VarChar(255)
+  createdAt             DateTime          @db.DateTime(0)
+  updatedAt             DateTime          @updatedAt @db.DateTime(0)
+  authorSubscribes      AuthorSubscribe[] @relation("SubscribedAuthor")
+  subscriptions         AuthorSubscribe[] @relation("AuthorSubscriber")
+  publishedBooks        Book[]            @relation("AuthorBooks")
+  receivedNotifications Notification[]    @relation("NotificationUser")
+
+  @@map("users")
+}
+
+model AuthorSubscribe {
+  id            Int       @id @default(autoincrement())
+  author_id     Int
+  user_id       Int
+  subscribed_at DateTime? @db.DateTime(0)
+  createdAt     DateTime  @db.DateTime(0)
+  updatedAt     DateTime  @updatedAt @db.DateTime(0)
+  author        User      @relation("SubscribedAuthor", fields: [author_id], references: [id], onDelete: Cascade, map: "authors_subscribe_ibfk_1")
+  subscriber    User      @relation("AuthorSubscriber", fields: [user_id], references: [id], onDelete: Cascade, map: "authors_subscribe_ibfk_2")
+
+  @@index([author_id], map: "author_id")
+  @@index([user_id], map: "user_id")
+  @@map("authors_subscribe")
+}
+
+model Book {
+  id        Int      @id @default(autoincrement())
+  author_id Int
+  name      String?  @db.VarChar(255)
+  createdAt DateTime @db.DateTime(0)
+  updatedAt DateTime @updatedAt @db.DateTime(0)
+  author    User     @relation("AuthorBooks", fields: [author_id], references: [id], map: "books_ibfk_1")
+
+  @@index([author_id], map: "author_id")
+  @@map("books")
+}
+
+model Notification {
+  id                Int      @id @default(autoincrement())
+  user_id           Int
+  message           String?  @db.LongText
+  is_read           Boolean? @default(false)
+  createdAt         DateTime @db.DateTime(0)
+  updatedAt         DateTime @updatedAt @db.DateTime(0)
+  notificationsUser User     @relation("NotificationUser", fields: [user_id], references: [id], onDelete: NoAction, onUpdate: NoAction, map: "notifications_ibfk_1")
+
+  @@index([user_id], map: "user_id")
+  @@map("notifications")
+}
+
+model SequelizeMeta {
+  name String @id @unique(map: "name") @db.VarChar(255)
+}
+
+enum users_user_type {
+  user
+  author
+}

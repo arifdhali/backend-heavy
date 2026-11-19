@@ -1,4 +1,3 @@
-const db = require("../models");
 
 const getBooks = async (req, res) => {
 
@@ -19,7 +18,6 @@ const getBooks = async (req, res) => {
 
     // console.log("Inserted Users: ", insertedUsers.length);
 
-    let books = await db.Books.findAll({});
 
 
 
@@ -62,7 +60,6 @@ const addBooks = async (req, res) => {
 
     const { author_id, name } = req.body;
 
-
     let isAuthor = await db.User.findOne({ where: { id: author_id, user_type: "author" } });
 
     if (!isAuthor) {
@@ -80,7 +77,6 @@ const addBooks = async (req, res) => {
     if (insertedBook) {
 
 
-        //  get all subscribed users 
 
         let subscribeUser = await db.Authors_subscribe.findAll({
             where: {
@@ -144,9 +140,9 @@ const bookSubscribe = async (req, res) => {
     })
 }
 
-module.exports = {
+export {
     getBooks,
     addAuthor,
     addBooks,
     bookSubscribe
-}
+};

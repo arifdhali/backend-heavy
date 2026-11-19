@@ -1,17 +1,17 @@
-const { getBooks, addAuthor, bookSubscribe, addBooks } = require("../controller/book.controller");
+import {
+    getBooks,
+    addAuthor,
+    bookSubscribe,
+    addBooks
+} from "../controller/book.controller.js";
 
-const bookRoute = require("express").Router();
+import { Router } from "express";
+
+const bookRoute = Router();
 
 bookRoute.get("/", getBooks);
-bookRoute.post("/add-author", addAuthor)
-
-bookRoute.post("/subscribe", bookSubscribe)
-
-
+bookRoute.post("/add-author", addAuthor);
+bookRoute.post("/subscribe", bookSubscribe);
 bookRoute.post("/add", addBooks);
 
-
-module.exports = bookRoute;
-
-
-
+export default bookRoute;
