@@ -9,6 +9,7 @@ export async function connectDatabase() {
         // Test query
         const userCount = await prisma.user.count();
 
+
         console.log("Total users:", userCount);
 
     } catch (error) {

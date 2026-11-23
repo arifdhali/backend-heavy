@@ -1,4 +1,4 @@
-
+import prisma from "../config/prisma";
 const getBooks = async (req, res) => {
 
     const users = [];
@@ -59,61 +59,66 @@ const addBooks = async (req, res) => {
 
 
     const { author_id, name } = req.body;
+    const authorId = Number(author_id);
 
-    let isAuthor = await db.User.findOne({ where: { id: author_id, user_type: "author" } });
+    try {
+        let result = await prisma.$transaction((async (ts) => {
+            let isAuthor = await ts.user.findFirst({ where: { id: authorId, user_type: "author" } });
 
-    if (!isAuthor) {
-        return res.status(404).json({
-            msg: "Author not found"
-        })
-    }
+            if (!isAuthor) {
+                return res.status(404).json({
+                    msg: "Author not found"
+                })
+            }
 
+            let insertedBook = await ts.book.create({
+                data: {
+                    author_id: authorId,
+                    name,
+                    createdAt: new Date(),
+                    updatedAt: new Date()
+                }
+            });
 
-    let insertedBook = await db.Books.create({
-        author_id,
-        name
-    });
-
-    if (insertedBook) {
-
-
-
-        let subscribeUser = await db.Authors_subscribe.findAll({
-            where: {
-                author_id
-            },
-            attributes: ['author_id'],
-            include: {
-                model: db.User,
-                as: "subscriber",
-                attributes: ['id']
-            },
-
-        });
+            const subscribeUser = await ts.authorSubscribe.findMany({
+                where: {
+                    author_id: authorId
+                },
+                select: {
+                    user_id: true
+                }
+            });
 
 
 
+            let subU = subscribeUser.map((user) => {
+                return {
+                    user_id: user.user_id,
+                    message: `${name} is added by ${isAuthor.name}`,
+                    is_read: false,
+                    createdAt: new Date(),
+                    updatedAt: new Date()
+                }
+            });
 
-        let subU = subscribeUser.map((user) => ({
-            user_id: user.subscriber.id,
-            message: `${name} is added by ${isAuthor.name}`,
-            is_read: false
-        }));
+            let notifications = await ts.notification.createMany({
+                data: subU
+            });
 
-
-        if (subU.length > 0) {
-            let notifications = await db.Notifications.bulkCreate(subU);
-
-
+            return insertedBook;
+        }))
+        if (!result) {
+            return res.status(404).json({
+                msg: "Author not found"
+            });
         }
         return res.status(201).json({
             msg: "Book added successfully"
         })
+    } catch (err) {
+        console.error(err);
+        throw err;
     }
-
-
-
-
 }
 
 const bookSubscribe = async (req, res) => {
