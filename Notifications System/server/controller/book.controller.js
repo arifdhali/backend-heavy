@@ -1,4 +1,5 @@
 import prisma from "../config/prisma";
+import { sendMail } from "../services/email.service";
 const getBooks = async (req, res) => {
 
     const users = [];
@@ -64,7 +65,6 @@ const addBooks = async (req, res) => {
     try {
         let result = await prisma.$transaction((async (ts) => {
             let isAuthor = await ts.user.findFirst({ where: { id: authorId, user_type: "author" } });
-
             if (!isAuthor) {
                 return res.status(404).json({
                     msg: "Author not found"
@@ -89,9 +89,7 @@ const addBooks = async (req, res) => {
                 }
             });
 
-
-
-            let subU = subscribeUser.map((user) => {
+            let notifications = subscribeUser.map((user) => {
                 return {
                     user_id: user.user_id,
                     message: `${name} is added by ${isAuthor.name}`,
@@ -101,20 +99,45 @@ const addBooks = async (req, res) => {
                 }
             });
 
-            let notifications = await ts.notification.createMany({
-                data: subU
-            });
+            if (notifications.length > 0) {
+                await ts.notification.createMany({
+                    data: notifications
+                });
+            }
 
-            return insertedBook;
+            return {
+                book: insertedBook,
+                author: isAuthor,
+                subscriberIds: subscribeUser.map(user => user.user_id)
+            };
         }))
         if (!result) {
             return res.status(404).json({
                 msg: "Author not found"
             });
         }
-        return res.status(201).json({
-            msg: "Book added successfully"
+
+        let users = await prisma.user.findMany({
+            where: {
+                id: {
+                    in: result.subscriberIds
+                }
+            },
+            select: {
+                id: true,
+                email: true,
+                name: true
+            }
         })
+        // sending mail here
+        for (const user of users) {
+            await sendMail(user, result.book, result.author)
+        }
+        return res.status(201).json({
+            msg: "Book added successfully",
+            totalSubscribers: users.length
+        });
+
     } catch (err) {
         console.error(err);
         throw err;
